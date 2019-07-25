@@ -1,0 +1,108 @@
+﻿
+<div class="row">
+    <div class="col-md-12 text-center">
+        <h3 *ngIf="isUserAuthenticated">Привет {{userName}}</h3>
+        <h3 *ngIf="!isUserAuthenticated">Not authenticated</h3>
+    </div>
+
+    <div class="row margin-top-md" *ngIf="isUserAuthenticated">
+        <div class="col-md-12 text-center">
+            <button class="btn btn-dark btn-lg" (click)="logout()">Logout</button>
+        </div>
+    </div>
+    <div class="row margin-top-md" *ngIf="!isUserAuthenticated">
+        <div class="col-md-12 text-center">
+            <button class="btn btn-primary btn-lg" (click)="login()">Login</button>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="isUserAuthenticated || isReadByrefMode">
+    <h1>Список</h1>
+    <ng-template [ngIf]="tableMode" [ngIfElse]="createAndEdit">
+        <input type="button" value="Добавить" *ngIf="isUserAuthenticated" class="btn btn-default" (click)="add()" />
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <td>Наименование</td>
+                    <td></td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let l of allLists">
+                    <td>{{l?.name}}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" *ngIf="isUserAuthenticated" (click)="editList(l)">Изменить</button>
+                        <button class="btn btn-sm btn-primary" *ngIf="isReadByrefMode" (click)="editList(l)">Просмотр</button>
+                        <button class="btn btn-sm btn-danger" *ngIf="isUserAuthenticated" (click)="delete(l)">Удалить</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="form-group">
+            <button class="btn btn-sm btn-primary" *ngIf="isUserAuthenticated" (click)="saveLink()">Скопировать ссылку</button>
+            &nbsp;
+            <button class="btn btn-sm btn-primary" (click)="createZipAndDownload()">Скачать архив</button>
+        </div>
+    </ng-template>
+
+    <ng-template #createAndEdit>
+        <div class="form-group">
+            <label>Наименование</label>
+            <input type="text" name="nameList" *ngIf="isUserAuthenticated" [(ngModel)]="oneList.name" class="form-control" #nameList="ngModel" required />
+            <div *ngIf="isReadByrefMode">
+                <label> {{oneList.name}}</label>
+            </div>
+        </div>
+        <h3>Задачи</h3>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <td>Наименование</td>
+                    <td>Выполнено</td>
+                    <td></td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let t of oneList.tasksTo; let index = index;">
+                    <td>
+                        <div>
+                            <input type="text" name="tableList" *ngIf="isUserAuthenticated" [(ngModel)]="oneList.tasksTo[index].name" class="form-control" />
+                            <label *ngIf="isReadByrefMode"> {{oneList.tasksTo[index].name}}</label>
+                        </div>
+                    </td>
+                    <td>
+                        <input type="checkbox" [disabled]="isReadByrefMode" [(ngModel)]="oneList.tasksTo[index].complete" />
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-danger" *ngIf="isUserAuthenticated" (click)="deleteTask(t)">Удалить</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="form-group" *ngIf="isUserAuthenticated">
+            <label>Наименование задачи</label>
+            <input type="text" name="nameTask" [(ngModel)]="addName" class="form-control" #nameTask="ngModel" required />
+            <br />
+            <input type="button" value="Добавить" [disabled]="nameTask.invalid" (click)="addTask(addName)" class="btn btn-success" />
+        </div>
+
+        <br />
+        <br />
+        <br />
+        <br />
+
+        <div>
+            <div [hidden]="!errorModel" class="alert alert-danger">
+                Заполните таблицу данных
+            </div>
+            <input type="button" value="Сохранить" *ngIf="isUserAuthenticated" [disabled]="nameList.invalid" (click)="save()" class="btn btn-success" />
+            <input type="button" value="Отмена" (click)="cancel(true)" class="btn btn-warning" />
+        </div>
+    </ng-template>
+</div>
+
